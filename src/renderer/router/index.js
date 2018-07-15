@@ -7,7 +7,12 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'landing-page',
+      name: 'create-download-page',
+      component: require('@/components/CreateDownloadPage').default
+    },
+    {
+      path: '/download',
+      name: 'download-page',
       component: require('@/components/DownloadPage').default
     },
     {
