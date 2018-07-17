@@ -52,7 +52,7 @@
           ? `http://localhost:9080#/download?link=${link}&savepath=${savepath}`
           : `file://${__dirname}/index.html#/download?link=${link}&savepath=${savepath}`
 
-        var win = new BrowserWindow({width: 400, height: 600})
+        var win = new BrowserWindow({width: 800, height: 600})
         win.loadURL(winURL)
       }
     }

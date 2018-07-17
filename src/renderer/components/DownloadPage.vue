@@ -5,7 +5,6 @@
       <div class="left-side">
         <div>
           Save to path : {{ savepath }}
-          <button id="testclick" @click="init()">click</button>
         </div>
         <div class="download-list">
           <div v-for="item in items">

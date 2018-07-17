@@ -11,14 +11,18 @@
       </div>
       <div class="item">
         <div class="name">Link:</div>
-        <div class="value">{{ link }}</div>
+        <div class="value" @click="goToLink">{{ link }}</div>
       </div>
-      <div class="item">
+      <div class="item-link">
         <div class="name">Video-Link:</div>
-        <div class="value">{{ videoUrl }}</div>
+        <ul v-for="(videoUrl, index) in videoUrls">
+          <li class="value">
+            <div @click="goToVLink(index)">{{ videoUrl }}</div>
+          </li>
+        </ul>
       </div>
       <div class="item">
-        <button @click="reloadLink">reload</button>
+        <button @click="reloadLink">reload link</button>
       </div>
     </div>
   </div>
@@ -27,53 +31,75 @@
 <script>
   import jsdom from 'jsdom'
   const { JSDOM } = jsdom
+  let createIframeUrl = function (vid, n) {
+    let currentdate = new Date()
+    let h = currentdate.getUTCHours()
+    let d = currentdate.getUTCDate()
+    let dh
+    let dh2
+    let m
+    if (h === 0) {
+      dh = d + '-' + h
+      dh2 = d + '-' + '24'
+    } else {
+      m = h - 1
+      dh = d + '-' + h
+      dh2 = d + '-' + m
+    }
+    return 'http://www.kseries.co/clip/play.php?id=' + vid + '&width=1005&height=540&dh=' + dh + '&dh2=' + dh2 + '&os=&n=' + n
+  }
 
   export default {
     props: ['savesrc', 'link', 'filename'],
-    data () {
-      let ifurl = this.$options.propsData.link
-      console.log(ifurl)
-      // let url = ''
-      this.$request(ifurl, function (error, response, body) {
-        console.log('error:', error) // Print the error if one occurred
-        console.log('statusCode:', response && response.statusCode) // Print the response status code if a response was received
-        // console.log(body)
-        let domIframe = new JSDOM(body)
-        let iframe = domIframe.window.document.getElementById('playlist')
-        console.log(iframe.src)
-      })
-
-      // let vid = this.$options.propsData.link.match('[0-9]+')[0]
-      // let url = 'http://www.kseries.co/clip/play.php?id=' + vid + '&os=&n=0'
-      // console.log(url)
-      let vurl = ''
-      // this.$request(url, function (error, response, body) {
-      //   console.log('error:', error)
-      //   console.log('statusCode:', response && response.statusCode)
-      //   let dom = new JSDOM(body)
-      //   let lstVideo = dom.window.document.getElementsByTagName('source')
-      //   for (let idx in lstVideo) {
-      //     vurl = lstVideo[idx].src
-      //   }
-      // })
-
+    data: function () {
+      let vid = this.$options.propsData.link.match('[0-9]+')[0]
+      let vuthis = this
+      for (let n = 0; n < 4; n++) {
+        let url = createIframeUrl(vid, n)
+        this.$request(url, function (error, response, body) {
+          console.log('error:', error)
+          console.log('statusCode:', response && response.statusCode)
+          let dom = new JSDOM(body)
+          let lstVideo = dom.window.document.getElementsByTagName('source')
+          for (let idx in lstVideo) {
+            if (!lstVideo[idx].src.match('www.kseries.co')) {
+              vuthis.$data.videoUrls.push(lstVideo[idx].src)
+            }
+            break
+          }
+        })
+      }
       return {
-        videoUrl: vurl
+        videoUrls: []
       }
     },
     methods: {
       reloadLink: function () {
         let vid = this.$options.propsData.link.match('[0-9]+')[0]
-        let url = 'http://www.kseries.co/clip/play.php?id=' + vid + '&os=&n=0'
-        this.$request(url, function (error, response, body) {
-          console.log('error:', error) // Print the error if one occurred
-          console.log('statusCode:', response && response.statusCode) // Print the response status code if a response was received
-          let dom = new JSDOM(body)
-          let lstVideo = dom.window.document.getElementsByTagName('source')
-          for (let idx in lstVideo) {
-            console.log(lstVideo[idx].src)
-          }
-        })
+        let vuthis = this
+        vuthis.$data.videoUrls = []
+        for (let n = 0; n < 4; n++) {
+          let url = createIframeUrl(vid, n)
+          this.$request(url, function (error, response, body) {
+            console.log('error:', error)
+            console.log('statusCode:', response && response.statusCode)
+            let dom = new JSDOM(body)
+            let lstVideo = dom.window.document.getElementsByTagName('source')
+            for (let idx in lstVideo) {
+              if (!lstVideo[idx].src.match('www.kseries.co')) {
+                vuthis.$data.videoUrls.push(lstVideo[idx].src)
+              }
+              break
+            }
+          })
+        }
+      },
+      goToLink: function () {
+        this.$electron.shellopenExternal(this.$options.propsData.link)
+      },
+      goToVLink: function (index) {
+        console.log(index)
+        this.$electron.shell.openExternal(this.$data.videoUrls[index])
       }
     }
   }
@@ -95,6 +121,21 @@
     margin-bottom: 6px;
   }
 
+  .item-link {
+    margin-bottom: 6px;
+  }
+
+  .item-link .name {
+    color: #6a6a6a;
+    margin-right: 6px;
+  }
+
+  .item-link .value {
+    color: #35495e;
+    font-weight: bold;
+    margin-left: 50px;
+  }
+
   .item .name {
     color: #6a6a6a;
     margin-right: 6px;
@@ -103,5 +144,11 @@
   .item .value {
     color: #35495e;
     font-weight: bold;
+  }
+
+  .item p.value {
+    color: #35495e;
+    font-weight: bold;
+    display: block;
   }
 </style>
