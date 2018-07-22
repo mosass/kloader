@@ -1,6 +1,6 @@
 # kseries_downloader
 
-> Video downloader for www.kseries.co
+> Video downloader
 
 #### Build Setup
 
