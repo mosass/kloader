@@ -1,7 +1,7 @@
 const request = require('sync-request')
 const {
     JSDOM
-} = require('JSDOM')
+} = require('jsdom')
 
 const fs = require('fs')
 
