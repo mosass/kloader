@@ -1,13 +1,12 @@
 const request = require('sync-request')
-const {
-    JSDOM
-} = require('jsdom')
+const { JSDOM } = require('jsdom')
 
 const fs = require('fs')
+const argv = require('yargs').argv
 
-var arg_url=process.argv[2] 
+var arg_url=argv.url 
 console.log("url -> " + arg_url)
-var arg_out=process.argv[3]
+var arg_out=argv.output
 console.log("output -> " + arg_out)
 
 let createIframeUrl = function (vid, n) {

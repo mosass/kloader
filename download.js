@@ -2,19 +2,17 @@ const http = require('http')
 const https = require('https')
 const fs = require('fs')
 const ProgressBar = require('progress')
+const argv = require('yargs')
 
-let arg_jsonin = process.argv[2]
+let arg_jsonin = argv.input
 console.log('json input -> ' + arg_jsonin)
 
-let arg_ep = 1
-if (process.argv.length > 3){
-    arg_ep = process.argv[3]
-}
+let arg_ep = argv.ep
 console.log('ep -> ' + arg_ep)
 
 let arg_dir = '.'
-if (process.argv.length > 4){
-    arg_dir = process.argv[4]
+if (argv.dir != undefined){
+    arg_dir = argv.dir
 }
 console.log('save to path -> ' + arg_dir)
 
